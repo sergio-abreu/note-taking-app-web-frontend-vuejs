@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
+import {useDisplay} from "vuetify";
 import axios from "axios";
 import Note from "@/components/NoteItem.vue";
 
@@ -11,22 +12,31 @@ onMounted(() => {
             response.data.forEach((el: any) => {
                 notes.value.push(el)
             })
-            console.log(notes.value);
         })
         .catch(function (error) {
             console.log(error);
         })
 })
+
+const itemsPerRow = computed(() => {
+    const items = Math.floor(useDisplay().width.value / 280);
+    console.log(items)
+    return items
+})
+
+function getNotesForColum(column:number) {
+    return notes.value.filter((note:Note, index:number) => {
+        return index % itemsPerRow.value == column - 1;
+    })
+}
+
 </script>
 
 <template>
     <v-container fluid class="d-flex">
         <v-row no-gutters>
-            <v-col v-for="note in notes" :key=note.id>
-                <Note :note="note" />
-            </v-col>
-            <v-col v-for="note in notes" :key=note.id>
-                <Note :note="note" />
+            <v-col class="d-block" v-for="n in itemsPerRow">
+                <Note v-for="note in getNotesForColum(n)" :note="note" :key="note.id"/>
             </v-col>
         </v-row>
     </v-container>

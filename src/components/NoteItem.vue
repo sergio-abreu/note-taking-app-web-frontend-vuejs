@@ -25,9 +25,32 @@ defineProps({
 </script>
 
 <template>
-    <v-card :title=note.title :text=note.description class="ma-5" min-width="200" max-width="500">
+    <v-card class="ma-1" width="238">
+        <v-card-text>
+            <p class="text-subtitle-1 three-lines">{{note.title}}</p>
+            <p class="text-subtitle-2 sixteen-lines">{{note.description}}</p>
+        </v-card-text>
         <v-card-actions>
             <v-btn>Click me</v-btn>
         </v-card-actions>
     </v-card>
 </template>
+
+<style>
+.three-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    white-space: normal;
+}
+.sixteen-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 16;
+    white-space: normal;
+}
+</style>
