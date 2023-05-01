@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useDisplay} from "vuetify";
 import axios from "axios";
 import Note from "@/components/NoteItem.vue";
+import AddNote from "@/components/AddNote.vue";
 
 const notes = ref(Array<Note>())
 
@@ -31,7 +32,8 @@ function getNotesForColum(column: number) {
 </script>
 
 <template>
-    <v-container fluid class="d-flex">
+    <AddNote/>
+    <v-container fluid>
         <v-row no-gutters>
             <v-spacer></v-spacer>
             <v-col v-for="n in itemsPerRow" :key="n">
