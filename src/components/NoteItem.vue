@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineProps, PropType} from "vue";
+import {PropType, ref} from "vue";
 
 interface Reminder {
     id: string
@@ -22,16 +22,35 @@ interface Note {
 defineProps({
     note: {type: Object as PropType<Note>, required: true}
 })
+
+const showActions = ref(false)
 </script>
 
 <template>
-    <v-card class="ma-1" width="238">
+    <v-card
+            class="ma-1"
+            variant="elevated"
+            width="238"
+            @mouseover="showActions = true"
+            @mouseleave="showActions = false"
+            density="compact"
+            elevation="5"
+    >
         <v-card-text>
             <p class="text-subtitle-1 three-lines">{{note.title}}</p>
             <p class="text-subtitle-2 sixteen-lines">{{note.description}}</p>
         </v-card-text>
-        <v-card-actions>
-            <v-btn>Click me</v-btn>
+        <v-card-actions class="pb-0 pt-0 ma-n1">
+            <v-fade-transition v-show="showActions">
+                <v-layout>
+                    <v-spacer></v-spacer>
+                    <v-btn class="ms-0" size="small" icon="mdi-bell-plus-outline"></v-btn>
+                    <v-btn class="ms-0" size="small" icon="mdi-content-copy"></v-btn>
+                    <v-btn class="ms-0" size="small" icon="mdi-archive-arrow-down"></v-btn>
+                    <v-btn class="ms-0" size="small" icon="mdi-delete-outline"></v-btn>
+                    <v-spacer></v-spacer>
+                </v-layout>
+            </v-fade-transition>
         </v-card-actions>
     </v-card>
 </template>

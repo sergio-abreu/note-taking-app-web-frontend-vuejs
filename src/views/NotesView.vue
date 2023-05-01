@@ -19,13 +19,11 @@ onMounted(() => {
 })
 
 const itemsPerRow = computed(() => {
-    const items = Math.floor(useDisplay().width.value / 280);
-    console.log(items)
-    return items
+    return Math.floor(useDisplay().width.value / 270)
 })
 
-function getNotesForColum(column:number) {
-    return notes.value.filter((note:Note, index:number) => {
+function getNotesForColum(column: number) {
+    return notes.value.filter((note: Note, index: number) => {
         return index % itemsPerRow.value == column - 1;
     })
 }
@@ -35,9 +33,15 @@ function getNotesForColum(column:number) {
 <template>
     <v-container fluid class="d-flex">
         <v-row no-gutters>
-            <v-col class="d-block" v-for="n in itemsPerRow">
-                <Note v-for="note in getNotesForColum(n)" :note="note" :key="note.id"/>
+            <v-spacer></v-spacer>
+            <v-col v-for="n in itemsPerRow" :key="n">
+                <Note
+                    v-for="note in getNotesForColum(n)"
+                    :note="note"
+                    :key="note.id"
+                />
             </v-col>
+            <v-spacer></v-spacer>
         </v-row>
     </v-container>
 </template>
