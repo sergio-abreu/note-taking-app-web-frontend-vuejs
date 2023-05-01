@@ -18,13 +18,14 @@ const items = ref([{
     icon: "mdi-package-down",
     to: '/archive',
 }])
+const darkTheme = ref(false)
 </script>
 
 <template>
-    <v-app full-height>
-        <AppBar @drawer="drawer = !drawer"/>
+    <v-app full-height :theme="darkTheme ? 'dark' : 'light'">
+        <AppBar @themeChanger="darkTheme = !darkTheme" @drawer="drawer = !drawer" :darkTheme="darkTheme"/>
         <NavigationDrawer :drawer="drawer" :items="items"/>
-        <v-main class="bg-grey-lighten-2">
+        <v-main>
             <v-container fluid class="ma-5 pa-5">
                 <v-container fluid>
                     <RouterView/>
