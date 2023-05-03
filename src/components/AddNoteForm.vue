@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import {ref} from "vue";
+import Note from "./../components/NoteItem.vue";
 
 const showForm = ref(false)
+const emits = defineEmits(['add-note'])
+const note = ref({title: "", description: ""})
+function clearNote(note:Note) {
+    note.title = ''
+    note.description = ''
+}
 
 </script>
 
@@ -45,6 +52,9 @@ const showForm = ref(false)
                             auto-grow
                             no-resize
                             rows="1"
+                            focused
+                            autofocus
+                            v-model="note.title"
                     ></v-textarea>
                     <v-textarea
                             class="text-caption"
@@ -55,6 +65,7 @@ const showForm = ref(false)
                             auto-grow
                             no-resize
                             rows="1"
+                            v-model="note.description"
                     ></v-textarea>
                 </div>
             </v-card-text>
@@ -62,7 +73,7 @@ const showForm = ref(false)
             <v-card-actions class="justify-end ma-0 pa-0">
                 <v-btn size="small" icon="mdi-bell-plus"></v-btn>
                 <v-spacer></v-spacer>
-                <v-btn size="small" icon="mdi-plus" @click="showForm = !showForm"></v-btn>
+                <v-btn size="small" icon="mdi-plus" @click="showForm = !showForm; emits('add-note', note); clearNote(note)"></v-btn>
             </v-card-actions>
         </v-card>
     </div>

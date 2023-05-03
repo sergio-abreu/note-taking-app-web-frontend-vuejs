@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 defineProps({darkTheme: {type: Boolean, required: true}})
-const emits = defineEmits(['drawer', 'themeChanger'])
+const emits = defineEmits(['drawer', 'theme-changer'])
 
 </script>
 
@@ -12,7 +12,7 @@ const emits = defineEmits(['drawer', 'themeChanger'])
         </template>
 
         <template v-slot:append>
-            <v-btn icon @click="emits('themeChanger')">
+            <v-btn icon @click="emits('theme-changer')">
                 <v-icon v-if="darkTheme">mdi-weather-sunny</v-icon>
                 <v-icon v-else>mdi-weather-night</v-icon>
             </v-btn>

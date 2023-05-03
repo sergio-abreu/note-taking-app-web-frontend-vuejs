@@ -23,7 +23,7 @@ const darkTheme = ref(false)
 
 <template>
     <v-app full-height :theme="darkTheme ? 'dark' : 'light'">
-        <AppBar @themeChanger="darkTheme = !darkTheme" @drawer="drawer = !drawer" :darkTheme="darkTheme"/>
+        <AppBar @theme-changer="darkTheme = !darkTheme" @drawer="drawer = !drawer" :darkTheme="darkTheme"/>
         <NavigationDrawer :drawer="drawer" :items="items"/>
         <v-main>
             <v-container fluid class="ma-5 pa-5">
