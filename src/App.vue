@@ -15,7 +15,7 @@ const items = ref([{
     to: '/reminders',
 }, {
     title: "Archive",
-    icon: "mdi-package-down",
+    icon: "mdi-archive-arrow-down-outline",
     to: '/archive',
 }])
 const darkTheme = ref(false)

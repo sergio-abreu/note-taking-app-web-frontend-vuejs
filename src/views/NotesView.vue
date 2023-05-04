@@ -7,12 +7,13 @@ import NoteItem from "@/components/NoteItem.vue";
 import AddNoteForm from "@/components/AddNoteForm.vue";
 
 const props = defineProps({
-    archivedView: {type: Boolean, required: true}
+    archivedView: {type: Boolean, required: true},
 })
 
 const notes = ref(new Array<Note>)
 const dialog = ref(false)
 const selectedNote = ref(Note)
+const noteWidth = ref(238)
 
 onMounted(() => {
     getNotes()
@@ -146,36 +147,39 @@ function unarchiveNote(id: string) {
         <v-row no-gutters>
             <v-spacer></v-spacer>
             <v-col v-for="n in itemsPerRow" :key="n">
-                <div v-for="note in getNotesForColum(n)" :key="note.id" @click="dialog = true; selectedNote = note">
-                    <NoteItem
-                        :note="note"
+                <div
+                        v-for="note in getNotesForColum(n)"
                         :key="note.id"
-                        :width=238
-                        :edit-mode="false"
-                        @copy-note="copyNote"
-                        @archive-note="archiveNote"
-                        @unarchive-note="unarchiveNote"
-                        @delete-note="deleteNote"
+                        @click="dialog = true; selectedNote = note"
+                >
+                    <NoteItem
+                            :note="note"
+                            :key="note.id"
+                            :width="noteWidth"
+                            :edit-mode="false"
+                            @copy-note="copyNote"
+                            @archive-note="archiveNote"
+                            @unarchive-note="unarchiveNote"
+                            @delete-note="deleteNote"
                     />
                 </div>
             </v-col>
             <v-spacer></v-spacer>
         </v-row>
         <v-dialog
-            v-model="dialog"
-            width="auto"
+                v-model="dialog"
+                width="auto"
         >
             <NoteItem
-                :note="selectedNote"
-                :width=700
-                @copy-note="copyNote"
-                @archive-note="archiveNote"
-                @unarchive-note="unarchiveNote"
-                @delete-note="deleteNote"
-                @edit-note="editNote"
-                :edit-mode="true"
+                    :note="selectedNote"
+                    :width=700
+                    @copy-note="copyNote"
+                    @archive-note="archiveNote"
+                    @unarchive-note="unarchiveNote"
+                    @delete-note="deleteNote"
+                    @edit-note="editNote"
+                    :edit-mode="true"
             />
         </v-dialog>
     </v-container>
-
 </template>

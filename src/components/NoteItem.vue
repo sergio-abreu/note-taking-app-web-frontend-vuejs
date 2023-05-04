@@ -43,11 +43,11 @@ const showActions = ref(false)
             density="compact"
             elevation="5"
     >
-        <v-card-text v-if="!editMode">
+        <v-card-text v-if="!editMode" class="mb-n7">
             <p class="text-subtitle-1 three-lines">{{ note.title }}</p>
             <p class="text-subtitle-2 sixteen-lines">{{ note.description }}</p>
         </v-card-text>
-        <v-card-text v-else class="ma-0 mt-n4 pa-2">
+        <v-card-text v-else class="ma-2 mt-n2 pa-2">
             <div class="d-block justify-space-around">
                 <v-textarea
                         class="text-subtitle-1 three-lines"
@@ -75,34 +75,34 @@ const showActions = ref(false)
                 ></v-textarea>
             </div>
         </v-card-text>
-        <v-card-actions class="pb-0 pt-0 ma-n1">
-            <v-fade-transition v-show="editedNote || showActions">
+        <v-card-actions class="pb-0 pt-3 ma-0">
+            <v-fade-transition v-show="editMode || showActions">
                 <v-layout>
                     <v-spacer></v-spacer>
-                    <v-btn class="ms-0" size="small" icon>
+                    <v-btn class="ms-0" size="small" icon @click.prevent.stop>
                         <v-icon>mdi-bell-plus-outline</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Remind me</v-tooltip>
                     </v-btn>
-                    <v-btn class="ms-0" size="small" icon @click="emits('copy-note', note)">
+                    <v-btn class="ms-0" size="small" icon @click.prevent.stop="emits('copy-note', note)">
                         <v-icon>mdi-content-copy</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Make a copy</v-tooltip>
                     </v-btn>
                     <v-btn v-if="!note.completed" class="ms-0" size="small" icon
-                           @click="emits('archive-note', note.id)">
-                        <v-icon>mdi-archive-arrow-down</v-icon>
+                           @click.prevent.stop="emits('archive-note', note.id)">
+                        <v-icon>mdi-archive-arrow-down-outline</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Archive</v-tooltip>
                     </v-btn>
-                    <v-btn v-else class="ms-0" size="small" icon @click="emits('unarchive-note', note.id)">
-                        <v-icon>mdi-archive-arrow-up</v-icon>
+                    <v-btn v-else class="ms-0" size="small" icon @click.prevent.stop="emits('unarchive-note', note.id)">
+                        <v-icon>mdi-archive-arrow-up-outline</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Unarchive</v-tooltip>
                     </v-btn>
-                    <v-btn class="ms-0" size="small" icon @click="emits('delete-note', note.id)">
+                    <v-btn class="ms-0" size="small" icon @click.prevent.stop="emits('delete-note', note.id)">
                         <v-icon>mdi-delete-outline</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Delete</v-tooltip>
                     </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn v-if="editMode" class="ms-0" size="small" icon @click="emits('edit-note', editedNote)">
-                        <v-icon>mdi-plus</v-icon>
+                        <v-icon>mdi-pencil-outline</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Edit</v-tooltip>
                     </v-btn>
                 </v-layout>
