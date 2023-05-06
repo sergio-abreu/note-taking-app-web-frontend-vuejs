@@ -35,22 +35,22 @@ const showActions = ref(false)
 
 <template>
     <v-card
-            class="ma-1 d-flex flex-column"
-            variant="elevated"
+            class="ma-1 d-flex flex-column rounded-lg"
+            variant="flat"
             :width="width"
             @mouseover="showActions = true"
             @mouseleave="showActions = false"
             density="compact"
-            elevation="5"
+            border
     >
         <v-card-text v-if="!editMode" class="mb-n7">
-            <p class="text-subtitle-1 three-lines">{{ note.title }}</p>
-            <p class="text-subtitle-2 sixteen-lines">{{ note.description }}</p>
+            <p class="text-subtitle-2 font-weight-bold three-lines">{{ note.title }}</p>
+            <p class="text-body-2 sixteen-lines">{{ note.description }}</p>
         </v-card-text>
         <v-card-text v-else class="ma-2 mt-n2 pa-2">
             <div class="d-block justify-space-around">
                 <v-textarea
-                        class="text-subtitle-1 three-lines"
+                        class="text-subtitle-2 font-weight-bold three-lines"
                         variant="plain"
                         placeholder="Title"
                         density="compact"
@@ -63,7 +63,7 @@ const showActions = ref(false)
                         v-model="editedNote.title"
                 ></v-textarea>
                 <v-textarea
-                        class="text-subtitle-2 sixteen-lines"
+                        class="text-body-2 sixteen-lines"
                         variant="plain"
                         placeholder="Take a note..."
                         density="compact"

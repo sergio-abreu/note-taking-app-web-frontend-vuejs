@@ -19,15 +19,22 @@ const items = ref([{
     to: '/archive',
 }])
 const darkTheme = ref(false)
+const listView = ref(false)
 </script>
 
 <template>
     <v-app :theme="darkTheme ? 'dark' : 'light'">
-        <AppBar @theme-changer="darkTheme = !darkTheme" @drawer="drawer = !drawer" :darkTheme="darkTheme"/>
+        <AppBar
+            @theme-changer="darkTheme = !darkTheme"
+            @drawer="drawer = !drawer"
+            :darkTheme="darkTheme"
+            :listView="listView"
+            @list-view-changer="listView = !listView"
+        />
         <NavigationDrawer :drawer="drawer" :items="items"/>
         <v-main>
             <v-container fluid>
-                <RouterView/>
+                <RouterView :listView="listView" />
             </v-container>
         </v-main>
     </v-app>

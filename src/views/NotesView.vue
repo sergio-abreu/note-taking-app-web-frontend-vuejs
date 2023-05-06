@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import {computed, onMounted, onUpdated, ref} from "vue";
-import {useDisplay} from "vuetify";
+import {useDisplay, useLayout} from "vuetify";
 import axios from "axios";
 import Note from "./../components/NoteItem.vue";
-import NoteItem from "@/components/NoteItem.vue";
-import AddNoteForm from "@/components/AddNoteForm.vue";
+import NoteItem from "./../components/NoteItem.vue";
+import AddNoteForm from "./../components/AddNoteForm.vue";
 
 const props = defineProps({
     archivedView: {type: Boolean, required: true},
+    listView: {type: Boolean, required: true},
 })
 
+const {mainRect} = useLayout()
 const notes = ref(new Array<Note>)
 const dialog = ref(false)
 const selectedNote = ref(Note)
-const noteWidth = ref(238)
 
 onMounted(() => {
     getNotes()
@@ -24,7 +25,21 @@ onUpdated(() => {
 })
 
 const itemsPerRow = computed(() => {
-    return Math.floor(useDisplay().width.value / 270)
+    if (props.listView) {
+        return 1
+    }
+    const width = useDisplay().width.value - mainRect.value.left - mainRect.value.right - 100
+    if (width < 250) {
+        return 1
+    }
+    return Math.floor(width / 250)
+})
+
+const cardWidth = computed(() => {
+    if (props.listView) {
+        return 600
+    }
+    return 238
 })
 
 function getNotesForColum(column: number) {
@@ -39,7 +54,7 @@ function getNotes() {
         'http://localhost:8080/api/v1/bdd0ff53-f42d-4168-a669-478c0be09207/notes/'
     axios.get(url)
         .then(function (response) {
-            notes.value = response.data
+            notes.value = response.data.reverse()
         })
         .catch(function (error) {
             console.error(error);
@@ -55,7 +70,7 @@ function addNote(note: Note) {
             if (props.archivedView) {
                 return
             }
-            notes.value.push({
+            notes.value.unshift({
                 id: response.data.note_id,
                 title: title,
                 description: description,
@@ -77,7 +92,7 @@ function copyNote(note: Note) {
             if (props.archivedView) {
                 return
             }
-            notes.value.push({
+            notes.value.unshift({
                 id: response.data.note_id,
                 title: note.title,
                 description: note.description,
@@ -146,16 +161,17 @@ function unarchiveNote(id: string) {
     <v-container fluid>
         <v-row no-gutters>
             <v-spacer></v-spacer>
-            <v-col v-for="n in itemsPerRow" :key="n">
+            <v-col v-for="n in itemsPerRow" :key="n" class="ma-1">
                 <div
                         v-for="note in getNotesForColum(n)"
                         :key="note.id"
                         @click="dialog = true; selectedNote = note"
+                        class="mb-4"
                 >
                     <NoteItem
                             :note="note"
                             :key="note.id"
-                            :width="noteWidth"
+                            :width="cardWidth"
                             :edit-mode="false"
                             @copy-note="copyNote"
                             @archive-note="archiveNote"

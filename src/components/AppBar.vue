@@ -1,7 +1,10 @@
 <script setup lang="ts">
 
-defineProps({darkTheme: {type: Boolean, required: true}})
-const emits = defineEmits(['drawer', 'theme-changer'])
+defineProps({
+    darkTheme: {type: Boolean, required: true},
+    listView: {type: Boolean, required: true},
+})
+const emits = defineEmits(['drawer', 'theme-changer', 'list-view-changer'])
 
 </script>
 
@@ -12,6 +15,10 @@ const emits = defineEmits(['drawer', 'theme-changer'])
         </template>
 
         <template v-slot:append>
+            <v-btn icon @click="emits('list-view-changer')">
+                <v-icon v-if="listView">mdi-view-grid-outline</v-icon>
+                <v-icon v-else>mdi-view-agenda-outline</v-icon>
+            </v-btn>
             <v-btn icon @click="emits('theme-changer')">
                 <v-icon v-if="darkTheme">mdi-weather-sunny</v-icon>
                 <v-icon v-else>mdi-weather-night</v-icon>

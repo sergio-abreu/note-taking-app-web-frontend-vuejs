@@ -27,17 +27,17 @@ function closeFormAndAddNote() {
 
 <template>
     <div
-            class="justify-center mb-2"
+            class="justify-center mt-5 mb-3"
             :class="[showForm ? 'd-none' : 'd-flex']"
     >
         <v-card
                 border
                 density="compact"
-                min-width="550"
+                min-width="600"
                 elevation="5"
                 variant="plain"
                 @click="showForm = !showForm"
-                class="included"
+                class="included rounded-lg"
         >
             <v-card-item class="ma-1 pa-1 text-subtitle-2">
                 <v-card-title>Take a note...</v-card-title>
@@ -45,13 +45,13 @@ function closeFormAndAddNote() {
         </v-card>
     </div>
     <div
-            class="justify-center mb-2"
+            class="justify-center mt-5 mb-3"
             :class="[!showForm ? 'd-none' : 'd-flex']"
     >
         <v-card
                 border
                 density="compact"
-                min-width="550"
+                min-width="600"
                 elevation="5"
                 variant="plain"
                 v-click-outside="{
