@@ -5,17 +5,30 @@ import Note from "./../components/NoteItem.vue";
 const showForm = ref(false)
 const emits = defineEmits(['add-note'])
 const note = ref({title: "", description: ""})
-function clearNote(note:Note) {
+
+function clearNote(note: Note) {
     note.title = ''
     note.description = ''
+}
+
+function include() {
+    return [document.querySelector('.included')]
+}
+
+function closeFormAndAddNote() {
+    showForm.value = false
+    if (note.value.title.length != 0) {
+        emits('add-note', note.value)
+        clearNote(note.value)
+    }
 }
 
 </script>
 
 <template>
     <div
-        class="justify-center mb-2"
-        :class="[showForm ? 'd-none' : 'd-flex']"
+            class="justify-center mb-2"
+            :class="[showForm ? 'd-none' : 'd-flex']"
     >
         <v-card
                 border
@@ -24,6 +37,7 @@ function clearNote(note:Note) {
                 elevation="5"
                 variant="plain"
                 @click="showForm = !showForm"
+                class="included"
         >
             <v-card-item class="ma-1 pa-1 text-subtitle-2">
                 <v-card-title>Take a note...</v-card-title>
@@ -31,8 +45,8 @@ function clearNote(note:Note) {
         </v-card>
     </div>
     <div
-        class="justify-center mb-2"
-        :class="[!showForm ? 'd-none' : 'd-flex']"
+            class="justify-center mb-2"
+            :class="[!showForm ? 'd-none' : 'd-flex']"
     >
         <v-card
                 border
@@ -40,6 +54,10 @@ function clearNote(note:Note) {
                 min-width="550"
                 elevation="5"
                 variant="plain"
+                v-click-outside="{
+                  handler: closeFormAndAddNote,
+                  include
+                }"
         >
             <v-card-text class="ma-0 mt-n4 pa-2">
                 <div class="d-block justify-space-around">
@@ -73,7 +91,8 @@ function clearNote(note:Note) {
             <v-card-actions class="justify-end ma-0 pa-0">
                 <v-btn size="small" icon="mdi-bell-plus"></v-btn>
                 <v-spacer></v-spacer>
-                <v-btn size="small" icon="mdi-plus" @click="showForm = !showForm; emits('add-note', note); clearNote(note)"></v-btn>
+                <v-btn size="small" icon="mdi-plus"
+                       @click="closeFormAndAddNote"></v-btn>
             </v-card-actions>
         </v-card>
     </div>
