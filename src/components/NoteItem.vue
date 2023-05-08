@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {PropType, ref} from "vue";
+import AddReminderForm from "@/components/AddReminderForm.vue";
 
 interface Reminder {
     id: string
@@ -26,11 +27,12 @@ const props = defineProps({
     width: {type: [Number, String], required: true},
 })
 
-const editedNote = ref({...props.note})
-
 const emits = defineEmits(['delete-note', 'copy-note', 'archive-note', 'unarchive-note', 'edit-note'])
 
 const showActions = ref(false)
+const editedNote = ref({...props.note})
+const persistent = ref(false)
+
 </script>
 
 <template>
@@ -44,13 +46,13 @@ const showActions = ref(false)
             border
     >
         <v-card-text v-if="!editMode" class="mb-n7">
-            <p class="text-subtitle-2 font-weight-bold three-lines">{{ note.title }}</p>
+            <p class="text-subtitle-1 font-weight-bold three-lines">{{ note.title }}</p>
             <p class="text-body-2 sixteen-lines">{{ note.description }}</p>
         </v-card-text>
         <v-card-text v-else class="ma-2 mt-n2 pa-2">
             <div class="d-block justify-space-around">
                 <v-textarea
-                        class="text-subtitle-2 font-weight-bold three-lines"
+                        class="text-subtitle-1 font-weight-bold three-lines"
                         variant="plain"
                         placeholder="Title"
                         density="compact"
@@ -76,13 +78,17 @@ const showActions = ref(false)
             </div>
         </v-card-text>
         <v-card-actions class="pb-0 pt-3 ma-0">
-            <v-fade-transition v-show="editMode || showActions">
+            <v-fade-transition v-show="editMode || showActions || persistent">
                 <v-layout>
                     <v-spacer></v-spacer>
-                    <v-btn class="ms-0" size="small" icon @click.prevent.stop>
-                        <v-icon>mdi-bell-plus-outline</v-icon>
-                        <v-tooltip offset="-5" activator="parent" location="bottom">Remind me</v-tooltip>
-                    </v-btn>
+                    <AddReminderForm @menu-updated="(value) => persistent = value">
+                        <template v-slot:activator="{ props }">
+                            <v-btn class="ms-0" size="small" icon @click.prevent.stop v-bind="props">
+                                <v-icon>mdi-bell-plus-outline</v-icon>
+                                <v-tooltip offset="-5" activator="parent" location="bottom" :disabled="persistent">Remind me</v-tooltip>
+                            </v-btn>
+                        </template>
+                    </AddReminderForm>
                     <v-btn class="ms-0" size="small" icon @click.prevent.stop="emits('copy-note', note)">
                         <v-icon>mdi-content-copy</v-icon>
                         <v-tooltip offset="-5" activator="parent" location="bottom">Make a copy</v-tooltip>
