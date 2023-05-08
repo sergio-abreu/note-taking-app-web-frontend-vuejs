@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {RouterView} from 'vue-router'
 import AppBar from "@/components/AppBar.vue";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import NavigationDrawer from "@/components/NavigationDrawer.vue";
+import router from "@/router";
 
 const drawer = ref(true)
 const items = ref([{
@@ -20,6 +21,13 @@ const items = ref([{
 }])
 const darkTheme = ref(false)
 const listView = ref(false)
+const pageTitle = ref("")
+
+watch(router.currentRoute, (r) => {
+    pageTitle.value = r.name
+})
+
+
 </script>
 
 <template>
@@ -30,6 +38,7 @@ const listView = ref(false)
             :darkTheme="darkTheme"
             :listView="listView"
             @list-view-changer="listView = !listView"
+            :title="pageTitle"
         />
         <NavigationDrawer :drawer="drawer" :items="items"/>
         <v-main>
