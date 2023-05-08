@@ -3,6 +3,7 @@
 defineProps({
     darkTheme: {type: Boolean, required: true},
     listView: {type: Boolean, required: true},
+    title: {type: String, required: true},
 })
 const emits = defineEmits(['drawer', 'theme-changer', 'list-view-changer'])
 
@@ -12,6 +13,10 @@ const emits = defineEmits(['drawer', 'theme-changer', 'list-view-changer'])
     <v-app-bar elevation="0" border>
         <template v-slot:prepend>
             <v-app-bar-nav-icon @click="emits('drawer')"></v-app-bar-nav-icon>
+        </template>
+
+        <template v-slot:title>
+            <span class="text-capitalize">{{ title }}</span>
         </template>
 
         <template v-slot:append>
