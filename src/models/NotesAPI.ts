@@ -98,4 +98,24 @@ export default class NotesApi {
         };
       });
   }
+
+  editReminder(noteID: string, reminderID:string, reminder: Reminder): Promise<Reminder> {
+    return axios.patch([this.url, "api/v1", this.userID, "notes", noteID, "reminders", reminderID].join("/"), reminder)
+      .then((r) => {
+        return {
+          id: r.data.reminder_id,
+          cron_expression: reminder.cron_expression,
+          ends_at: reminder.ends_at,
+          created_at: r.data.created_at,
+          updated_at: r.data.updated_at
+        };
+      });
+  }
+
+  deleteReminder(noteID: string, reminderID: string): Promise<Reminder> {
+    return axios.delete([this.url, "api/v1", this.userID, "notes", noteID, "reminders", reminderID].join("/"))
+      .then(() => {
+        return reminderID;
+      });
+  }
 }

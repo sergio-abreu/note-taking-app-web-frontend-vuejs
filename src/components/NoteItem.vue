@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 import AddReminderForm from "@/components/AddReminderForm.vue";
 import { Note } from "@/models/Notes";
+import parser from "cron-parser";
 
 const props = defineProps({
   note: { type: Object as PropType<Note>, required: true },
@@ -9,11 +10,26 @@ const props = defineProps({
   width: { type: [Number, String], required: true }
 });
 
-const emits = defineEmits(["delete-note", "copy-note", "archive-note", "unarchive-note", "edit-note", "save-reminder"]);
+const emits = defineEmits(["delete-note", "copy-note", "archive-note", "unarchive-note", "edit-note", "save-reminder", "delete-reminder"]);
 
 const showActions = ref(false);
 const editedNote = ref({ ...props.note });
 const persistent = ref(false);
+
+const reminderChip = computed({
+  get() {
+    return !!props.note.reminder;
+  },
+  set() {
+  }
+});
+
+const nextCron = computed(() => {
+  if (!props.note.reminder) {
+    return "";
+  }
+  return parser.parseExpression(props.note.reminder.cron_expression).next().toDate().toLocaleString();
+});
 
 </script>
 
@@ -58,17 +74,56 @@ const persistent = ref(false);
           v-model="editedNote.description"
         ></v-textarea>
       </div>
-      <div class="d-flex justify-end text-caption">
-        <span>Edited {{ (new Date(note.updated_at)).toLocaleString() }}
-          <v-tooltip activator="parent" location="top">Created {{ (new Date(note.created_at)).toLocaleString() }}</v-tooltip>
-        </span>
+      <div class="d-flex justify-space-between text-caption mt-2" style="z-index: 1">
+        <div>
+          <v-chip
+            v-show="!!note.reminder"
+            v-model="reminderChip"
+            size="small"
+            class="text-caption"
+            closable
+            close-label="Delete reminder"
+            close-icon="mdi-window-close"
+            @click:close.stop="emits('delete-reminder', note.reminder.id)"
+            @click.stop=""
+          >
+            {{ nextCron }}
+          </v-chip>
+        </div>
+        <div>Edited {{ (new Date(note.updated_at)).toLocaleString() }}
+          <v-tooltip
+            activator="parent"
+            location="top"
+          >
+            Created {{ (new Date(note.created_at)).toLocaleString() }}
+          </v-tooltip>
+        </div>
       </div>
     </v-card-text>
+    <v-card-item v-if="!editMode" class="mb-n5 mt-3" style="z-index: 1">
+      <v-chip
+        v-show="!!note.reminder"
+        v-model="reminderChip"
+        size="small"
+        class="text-caption"
+        closable
+        close-label="Delete reminder"
+        close-icon="mdi-window-close"
+        @click:close.stop="emits('delete-reminder', note.reminder.id)"
+        @click.stop=""
+      >
+        {{ nextCron }}
+      </v-chip>
+    </v-card-item>
     <v-card-actions class="pb-0 pt-3 ma-0" :class="{'mt-n8': editMode}">
       <v-fade-transition v-show="editMode || showActions || persistent">
         <v-layout>
           <v-spacer></v-spacer>
-          <AddReminderForm :reminder="note.reminder" @menu-updated="(value) => persistent = value" @save-reminder="(r) => emits('save-reminder', r)">
+          <AddReminderForm
+            :reminder="note.reminder"
+            @menu-updated="(value) => persistent = value"
+            @save-reminder="(r) => emits('save-reminder', r)"
+          >
             <template v-slot:activator="{ props }">
               <v-btn class="ms-0" size="small" icon @click.prevent.stop v-bind="props">
                 <v-icon>mdi-bell-plus-outline</v-icon>
