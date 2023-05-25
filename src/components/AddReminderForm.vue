@@ -1,83 +1,89 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import cronstrue from "cronstrue/i18n";
+import { computed, PropType, ref, onRenderTriggered, watch } from "vue";
+import { Reminder } from "@/models/Notes";
 
 const emits = defineEmits(["menu-updated", "save-reminder"]);
 
+const props = defineProps({
+  note_id: { type: String, required: true },
+  reminder: { type: Object as PropType<Reminder> }
+});
+
 const menu = ref(false);
-const now = new Date();
-const today = [now.getFullYear(), ("00" + (now.getMonth() + 1)).slice(-2), ("00" + now.getDate()).slice(-2)].join("-");
-const date = ref(today);
-const time = ref([("00" + now.getHours()).slice(-2), ("00" + now.getMinutes()).slice(-2)].join(":"));
-const every = ref("Daily");
-const selectedDays = ref(Array<Number>());
-const ends = ref({
-  type: "never",
-  occurrences: 1,
-  on: today
-});
+const selectedDays = ref(!!props.reminder && !!props.reminder.week_days ? props.reminder.week_days.split(",") : Array<Number>());
+const reminder: Reminder = ref({});
+const ends = ref({type: "", ends_at: "", ends_after_n: 0})
 
-const endsOn = computed(() => {
-  switch (ends.value.type) {
-    case "date":
-      return ". Ends on " + ends.value.on;
-    case "occurrences":
-      return ". Ends after " + ends.value.occurrences + " occurrences.";
-    case "never":
-    default:
-      return "";
+watch(ends.value, async (newValue) => {
+  if (newValue.type == "never") {
+    reminder.value.ends_at = "";
+    reminder.value.ends_after_n = 0;
+  } else if (newValue.type == "occurrences") {
+    if (newValue.ends_after_n < 1) {
+      ends.value.ends_after_n = 1
+    }
+    reminder.value.ends_at = "";
+    reminder.value.ends_after_n = parseInt(newValue.ends_after_n);
+  } else if (newValue.type == "date") {
+    reminder.value.ends_at = newValue.ends_at;
+    reminder.value.ends_after_n = 0;
   }
-});
+})
 
-const cron = computed(() => {
-  const datePart = date.value.split("-");
-  const timePart = time.value.split(":");
-  const min = timePart[1];
-  const hour = timePart[0];
-  let day = "*";
-  let month = "*";
-  let week = "*";
-  switch (every.value) {
-    case "Daily":
-      break;
-    case "Weekly":
-      week = selectedDays.value.length == 0 ? "*" : selectedDays.value.join(",");
-      break;
-    case "Monthly":
-      day = datePart[2];
-      break;
-    case "Yearly":
-      day = datePart[2];
-      month = datePart[1];
-      break;
+watch(() => selectedDays.value, async (newValue) => {
+  if (reminder.value.interval != "Weekly") {
+    reminder.value.week_days = "";
+  } else {
+    reminder.value.week_days = newValue.join(",")
   }
-  return [min, hour, day, month, week].join(" ");
-});
+}, { deep: true })
 
-const humanReadable = computed(() => cronstrue.toString(cron.value));
+onRenderTriggered((e) => {
+  if (e.newValue !== true) {
+    return;
+  }
+  const now = new Date();
+  const today = [now.getFullYear(), ("00" + (now.getMonth() + 1)).slice(-2), ("00" + now.getDate()).slice(-2)].join("-");
+  const time = [("00" + now.getHours()).slice(-2), ("00" + (now.getMinutes() + 1)).slice(-2)].join(":");
+  reminder.value.id = !!props.reminder && !!props.reminder.id ? props.reminder.id : "";
+  reminder.value.note_id = !!props.reminder && !!props.reminder.note_id ? props.reminder.note_id : props.note_id;
+  reminder.value.user_id = !!props.reminder && !!props.reminder.user_id ? props.reminder.user_id : "";
+  reminder.value.start_date = !!props.reminder && !!props.reminder.start_date ? props.reminder.start_date : today;
+  reminder.value.start_time = !!props.reminder && !!props.reminder.start_time ? props.reminder.start_time : time;
+  reminder.value.timezone = !!props.reminder && !!props.reminder.timezone ? props.reminder.timezone : Intl.DateTimeFormat().resolvedOptions().timeZone;
+  reminder.value.interval = !!props.reminder && !!props.reminder.interval ? props.reminder.interval : "Daily";
+  reminder.value.week_days = !!props.reminder && !!props.reminder.week_days ? props.reminder.week_days : "";
+  reminder.value.ends_after_n = !!props.reminder && !!props.reminder.ends_after_n ? props.reminder.ends_after_n : 0;
+  reminder.value.ends_at = !!props.reminder && !!props.reminder.ends_at ? props.reminder.ends_at : "";
+  reminder.value.created_at = !!props.reminder && !!props.reminder.created_at ? props.reminder.created_at : "";
+  reminder.value.updated_at = !!props.reminder && !!props.reminder.updated_at ? props.reminder.updated_at : "";
+
+  ends.value.type = !!props.reminder && props.reminder.ends_after_n > 0 ? "occurrences" : props.reminder && !!props.reminder.ends_at ? "date" : "never";
+  ends.value.ends_after_n = !!props.reminder && props.reminder.ends_after_n > 0 ? props.reminder.ends_after_n : 1;
+  ends.value.ends_at = !!props.reminder && !!props.reminder.ends_at ? props.reminder.ends_at : today;
+
+  selectedDays.value = !!props.reminder && !!reminder.value.week_days ? reminder.value.week_days.split(",") : [];
+});
 
 function addDay(day: Number) {
   if (existDay(day)) {
     return;
   }
   selectedDays.value.push(day);
+  selectedDays.value.sort();
 }
 
 function removeDay(day: Number) {
-  selectedDays.value = selectedDays.value.filter(el => el != day);
+  selectedDays.value = selectedDays.value.filter((el:Number) => el != day);
 }
 
 function existDay(day: Number): boolean {
-  return !!selectedDays.value.find(el => el == day);
+  return !!selectedDays.value.find((el:Number) => el == day);
 }
 
 function save() {
-  emits("save-reminder", {
-    cron_expression: cron.value,
-    ends_at: ends.value.type == "date" ? ends.value.on : "",
-    repeats: ends.value.type == "occurrences" ? ends.value.occurrences : 0
-  });
-  menu.value = false
+  emits("save-reminder", reminder.value);
+  menu.value = false;
 }
 
 </script>
@@ -98,7 +104,7 @@ function save() {
         <v-row>
           <v-col>
             <v-text-field
-              v-model="date"
+              v-model="reminder.start_date"
               type="date"
               density="compact"
               hide-details
@@ -110,7 +116,7 @@ function save() {
           <v-divider></v-divider>
           <v-col>
             <v-text-field
-              v-model="time"
+              v-model="reminder.start_time"
               type="time"
               density="compact"
               hide-details
@@ -124,11 +130,11 @@ function save() {
             <v-select
               :items="['Daily', 'Weekly', 'Monthly', 'Yearly']"
               variant="underlined"
-              v-model="every"
+              v-model="reminder.interval"
               hide-no-data
               single-line
             ></v-select>
-            <div class="mt-n2 mb-2" v-show="every == 'Weekly'">
+            <div class="mt-n2 mb-2" v-show="reminder.interval == 'Weekly'">
               <v-chip class="rounded-chip pa-1 mr-2 mb-1 rounded-circle text-caption"
                       @click="existDay(7) ? removeDay(7) : addDay(7)"
                       :variant="existDay(7) ? 'elevated' : 'outlined'"
@@ -197,7 +203,7 @@ function save() {
                 hide-details
                 variant="underlined"
                 class="mt-n6 ml-n8"
-                v-model="ends.occurrences"
+                v-model="ends.ends_after_n"
               ></v-text-field>
             </v-col>
             <v-col>
@@ -215,7 +221,7 @@ function save() {
             </v-col>
             <v-col>
               <v-text-field
-                v-model="ends.on"
+                v-model="ends.ends_at"
                 type="date"
                 density="compact"
                 hide-details
@@ -225,12 +231,6 @@ function save() {
             </v-col>
           </v-row>
         </v-radio-group>
-        <v-row>
-          <v-divider></v-divider>
-          <v-col>
-            <div class="text-subtitle-2">{{ humanReadable }}{{ endsOn }}</div>
-          </v-col>
-        </v-row>
       </v-container>
       <v-card-actions>
         <v-spacer></v-spacer>

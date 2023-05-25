@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, PropType, ref } from "vue";
 import AddReminderForm from "@/components/AddReminderForm.vue";
-import { Note } from "@/models/Notes";
-import parser from "cron-parser";
+import { Note, Reminder } from "@/models/Notes";
 
 const props = defineProps({
   note: { type: Object as PropType<Note>, required: true },
@@ -28,7 +27,8 @@ const nextCron = computed(() => {
   if (!props.note.reminder) {
     return "";
   }
-  return parser.parseExpression(props.note.reminder.cron_expression).next().toDate().toLocaleString();
+  const r:Reminder = props.note.reminder;
+  return [r.start_date, " ", r.interval].join("");
 });
 
 </script>
@@ -84,18 +84,18 @@ const nextCron = computed(() => {
             closable
             close-label="Delete reminder"
             close-icon="mdi-window-close"
-            @click:close.stop="emits('delete-reminder', note.reminder.id)"
+            @click:close.stop="emits('delete-reminder', note.reminder)"
             @click.stop=""
           >
             {{ nextCron }}
           </v-chip>
         </div>
-        <div>Edited {{ (new Date(note.updated_at)).toLocaleString() }}
+        <div>Edited {{ note.updated_at.toLocaleString() }}
           <v-tooltip
             activator="parent"
             location="top"
           >
-            Created {{ (new Date(note.created_at)).toLocaleString() }}
+            Created {{ note.created_at.toLocaleString() }}
           </v-tooltip>
         </div>
       </div>
@@ -109,7 +109,7 @@ const nextCron = computed(() => {
         closable
         close-label="Delete reminder"
         close-icon="mdi-window-close"
-        @click:close.stop="emits('delete-reminder', note.reminder.id)"
+        @click:close.stop="emits('delete-reminder', note.reminder)"
         @click.stop=""
       >
         {{ nextCron }}
@@ -120,6 +120,7 @@ const nextCron = computed(() => {
         <v-layout>
           <v-spacer></v-spacer>
           <AddReminderForm
+            :note_id="note.id"
             :reminder="note.reminder"
             @menu-updated="(value) => persistent = value"
             @save-reminder="(r) => emits('save-reminder', r)"

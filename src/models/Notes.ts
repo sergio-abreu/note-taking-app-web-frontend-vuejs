@@ -1,9 +1,16 @@
 export interface Reminder {
   id: string;
-  cron_expression: string;
-  ends_at: string;
-  created_at: string;
-  updated_at: string;
+  note_id: string;
+  user_id: string;
+  start_date: Date;
+  start_time: string;
+  timezone: string;
+  interval: string;
+  week_days: string;
+  ends_after_n: number;
+  ends_at: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface Note {
@@ -13,6 +20,6 @@ export interface Note {
   completed: boolean;
   user_id: string;
   reminder: Reminder;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }

@@ -91,7 +91,14 @@ export default class NotesApi {
       .then((r) => {
         return {
           id: r.data.reminder_id,
-          cron_expression: reminder.cron_expression,
+          note_id: noteID,
+          user_id: this.userID,
+          start_date: reminder.start_date,
+          start_time: reminder.start_time,
+          timezone: reminder.timezone,
+          interval: reminder.interval,
+          week_days: reminder.week_days,
+          ends_after_n: reminder.ends_after_n,
           ends_at: reminder.ends_at,
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
@@ -99,12 +106,19 @@ export default class NotesApi {
       });
   }
 
-  editReminder(noteID: string, reminderID:string, reminder: Reminder): Promise<Reminder> {
+  editReminder(noteID: string, reminderID: string, reminder: Reminder): Promise<Reminder> {
     return axios.patch([this.url, "api/v1", this.userID, "notes", noteID, "reminders", reminderID].join("/"), reminder)
       .then((r) => {
         return {
           id: r.data.reminder_id,
-          cron_expression: reminder.cron_expression,
+          note_id: noteID,
+          user_id: this.userID,
+          start_date: reminder.start_date,
+          start_time: reminder.start_time,
+          timezone: reminder.timezone,
+          interval: reminder.interval,
+          week_days: reminder.week_days,
+          ends_after_n: reminder.ends_after_n,
           ends_at: reminder.ends_at,
           created_at: r.data.created_at,
           updated_at: r.data.updated_at

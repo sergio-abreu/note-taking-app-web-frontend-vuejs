@@ -121,17 +121,17 @@ function unarchiveNote(id: string) {
   });
 }
 
-function saveReminder(noteID: string, reminderID: (undefined | string), reminder: Reminder) {
-  if (reminderID) {
-    api.editReminder(noteID, reminderID, reminder).then((r: Reminder) => {
-      let note = notes.value.find((el) => el.id == noteID);
+function saveReminder(reminder: Reminder) {
+  if (reminder.id) {
+    api.editReminder(reminder.note_id, reminder.id, reminder).then((r: Reminder) => {
+      let note = notes.value.find((el) => el.id == reminder.note_id);
       note.reminder = r;
     }).catch((e: any) => {
       console.error(e);
     });
   } else {
-    api.createReminder(noteID, reminder).then((r: Reminder) => {
-      let note = notes.value.find((el) => el.id == noteID);
+    api.createReminder(reminder.note_id, reminder).then((r: Reminder) => {
+      let note = notes.value.find((el) => el.id == reminder.note_id);
       note.reminder = r;
     }).catch((e: any) => {
       console.error(e);
@@ -139,9 +139,9 @@ function saveReminder(noteID: string, reminderID: (undefined | string), reminder
   }
 }
 
-function deleteReminder(noteID: string, reminderID: string) {
-  api.deleteReminder(noteID, reminderID).then(() => {
-    let note = notes.value.find((el) => el.id == noteID);
+function deleteReminder(reminder: Reminder) {
+  api.deleteReminder(reminder.note_id, reminder.id).then(() => {
+    let note = notes.value.find((el) => el.id == reminder.note_id);
     note.reminder = undefined;
   }).catch((e: any) => {
     console.error(e);
@@ -171,8 +171,8 @@ function deleteReminder(noteID: string, reminderID: string) {
             @archive-note="archiveNote"
             @unarchive-note="unarchiveNote"
             @delete-note="deleteNote"
-            @save-reminder="(r) => saveReminder(note.id, note.reminder?.id, r)"
-            @delete-reminder="(r) => deleteReminder(note.id, r)"
+            @save-reminder="saveReminder"
+            @delete-reminder="deleteReminder"
           />
         </div>
       </v-col>
@@ -191,8 +191,8 @@ function deleteReminder(noteID: string, reminderID: string) {
         @unarchive-note="unarchiveNote"
         @delete-note="deleteNote"
         @edit-note="editNote"
-        @save-reminder="(r) => saveReminder(selectedNote.id, selectedNote.reminder?.id, r)"
-        @delete-reminder="(r) => deleteReminder(selectedNote.id, r)"
+        @save-reminder="saveReminder"
+        @delete-reminder="deleteReminder"
       />
     </v-dialog>
   </v-container>
