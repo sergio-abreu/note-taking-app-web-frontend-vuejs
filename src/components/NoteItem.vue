@@ -2,7 +2,9 @@
 import { computed, ref } from "vue";
 import AddReminderForm from "@/components/AddReminderForm.vue";
 import { Note, Reminder } from "@/models/Notes";
+import { useNotesStore } from "@/stores/notes";
 
+const store = useNotesStore();
 const props = defineProps<{
   note: Note,
   editMode: boolean,
@@ -10,17 +12,11 @@ const props = defineProps<{
 }>();
 
 const emits = defineEmits<{
-  (e: "delete-note", noteID: string): void
-  (e: "copy-note", note: Note): void
-  (e: "archive-note", noteID: string): void
-  (e: "unarchive-note", noteID: string): void
-  (e: "edit-note", note: Note): void
-  (e: "save-reminder", reminder: Reminder): void
-  (e: "delete-reminder", reminder: Reminder): void
+  (e: "close-dialog"): void
 }>();
 
-const showActions = ref<boolean>(false);
 const editedNote = ref<Note>({ ...props.note });
+const showActions = ref<boolean>(false);
 const persistent = ref<boolean>(false);
 
 const reminderChip = computed({
@@ -92,7 +88,7 @@ const nextCron = computed<string>(() => {
             closable
             close-label="Delete reminder"
             close-icon="mdi-window-close"
-            @click:close.stop="emits('delete-reminder', note.reminder)"
+            @click:close.stop="store.deleteReminder(note.reminder)"
             @click.stop=""
           >
             {{ nextCron }}
@@ -117,7 +113,7 @@ const nextCron = computed<string>(() => {
         closable
         close-label="Delete reminder"
         close-icon="mdi-window-close"
-        @click:close.stop="emits('delete-reminder', note.reminder)"
+        @click:close.stop="store.deleteReminder(note.reminder)"
         @click.stop=""
       >
         {{ nextCron }}
@@ -131,7 +127,6 @@ const nextCron = computed<string>(() => {
             :note_id="note.id"
             :reminder="note.reminder"
             @menu-updated="(value) => persistent = value"
-            @save-reminder="(r) => emits('save-reminder', r)"
           >
             <template v-slot:activator="{ props }">
               <v-btn class="ms-0" size="small" icon @click.prevent.stop v-bind="props">
@@ -140,25 +135,26 @@ const nextCron = computed<string>(() => {
               </v-btn>
             </template>
           </AddReminderForm>
-          <v-btn class="ms-0" size="small" icon @click.prevent.stop="emits('copy-note', note)">
+          <v-btn class="ms-0" size="small" icon @click.prevent.stop="store.copyNote(note); emits('close-dialog');">
             <v-icon>mdi-content-copy</v-icon>
             <v-tooltip offset="-5" activator="parent" location="bottom">Make a copy</v-tooltip>
           </v-btn>
           <v-btn v-if="!note.completed" class="ms-0" size="small" icon
-                 @click.prevent.stop="emits('archive-note', note.id)">
+                 @click.prevent.stop="store.archiveNote(note.id); emits('close-dialog');">
             <v-icon>mdi-archive-arrow-down-outline</v-icon>
             <v-tooltip offset="-5" activator="parent" location="bottom">Archive</v-tooltip>
           </v-btn>
-          <v-btn v-else class="ms-0" size="small" icon @click.prevent.stop="emits('unarchive-note', note.id)">
+          <v-btn v-else class="ms-0" size="small" icon @click.prevent.stop="store.unarchiveNote(note.id); emits('close-dialog');">
             <v-icon>mdi-archive-arrow-up-outline</v-icon>
             <v-tooltip offset="-5" activator="parent" location="bottom">Unarchive</v-tooltip>
           </v-btn>
-          <v-btn class="ms-0" size="small" icon @click.prevent.stop="emits('delete-note', note.id)">
+          <v-btn class="ms-0" size="small" icon @click.prevent.stop="store.deleteNote(note.id); emits('close-dialog');">
             <v-icon>mdi-delete-outline</v-icon>
             <v-tooltip offset="-5" activator="parent" location="bottom">Delete</v-tooltip>
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn v-if="editMode" class="ms-0" size="small" icon @click="emits('edit-note', editedNote)">
+          <v-btn v-if="editMode" class="ms-0" size="small" icon
+                 @click="store.editNote(editedNote); emits('close-dialog');">
             <v-icon>mdi-pencil-outline</v-icon>
             <v-tooltip offset="-5" activator="parent" location="bottom">Edit</v-tooltip>
           </v-btn>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onRenderTriggered, watch } from "vue";
+import { ref, onRenderTriggered, watch, onMounted } from "vue";
 import { Reminder } from "@/models/Notes";
+import { useNotesStore } from "@/stores/notes";
 
+const store = useNotesStore();
 const emits = defineEmits<{
   (e: "menu-updated", value: boolean): void
-  (e: "save-reminder", reminder: Reminder): void
 }>();
 
 const props = defineProps<{
@@ -82,11 +83,6 @@ function removeDay(day: number) {
 
 function existDay(day: number): boolean {
   return !!selectedDays.value.find((el: Number) => el == day);
-}
-
-function save() {
-  emits("save-reminder", reminder.value);
-  menu.value = false;
 }
 
 </script>
@@ -237,7 +233,7 @@ function save() {
       </v-container>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn class="text-none" @click="save">Save</v-btn>
+        <v-btn class="text-none" @click="store.saveReminder(reminder); menu = false;">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-menu>

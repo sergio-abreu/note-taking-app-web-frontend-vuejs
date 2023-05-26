@@ -1,28 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, onUpdated, Ref, ref } from "vue";
+import { computed, onBeforeMount, Ref, ref } from "vue";
 import { useDisplay, useLayout } from "vuetify";
-import { Note, Reminder } from "@/models/Notes";
+import { Note } from "@/models/Notes";
 import NoteItem from "./../components/NoteItem.vue";
 import AddNoteForm from "./../components/AddNoteForm.vue";
-import NotesApi from "@/models/NotesAPI";
+import { useNotesStore } from "@/stores/notes";
 
 const props = defineProps<{
   archivedView: boolean,
   listView: boolean,
 }>();
 
+const store = useNotesStore();
 const { mainRect } = useLayout();
-const notes: Ref<Array<Note>> = ref([]);
 const dialog = ref(false);
 const selectedNote: Ref<Note> = ref({});
-const api: NotesApi = new NotesApi("http://localhost:8080", "bdd0ff53-f42d-4168-a669-478c0be09207");
-
-onMounted(() => {
-  getNotes();
+const notes = computed<Array<Note>>(() => {
+  return props.archivedView ? store.completed : store.inProgress;
 });
 
-onUpdated(() => {
-  getNotes();
+onBeforeMount(() => {
+  store.getNotes();
 });
 
 const itemsPerRow = computed<number>(() => {
@@ -49,109 +47,10 @@ function getNotesForColum(column: number): Array<Note> {
   });
 }
 
-function getNotes() {
-  if (props.archivedView) {
-    api.getCompletedNotes().then((n: Array<Note>) => {
-      notes.value = n;
-    }).catch((e: any) => {
-      console.error(e);
-    });
-  } else {
-    api.getInProgressNotes().then((n: Array<Note>) => {
-      notes.value = n;
-    }).catch((e: any) => {
-      console.error(e);
-    });
-  }
-}
-
-function addNote(note: Note) {
-  api.addNote(note).then((note: Note) => {
-    if (props.archivedView) {
-      return;
-    }
-    notes.value.unshift(note);
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function copyNote(note: Note) {
-  api.copyNote(note).then((note: Note) => {
-    if (props.archivedView) {
-      return;
-    }
-    notes.value.unshift(note);
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function editNote(note: Note) {
-  api.editNote(note).then((note: Note) => {
-    notes.value = notes.value.map(el => el.id == note.id ? note : el);
-  }).then(() => {
-    dialog.value = false;
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function deleteNote(id: string) {
-  api.deleteNote(id).then((id: string) => {
-    notes.value = notes.value.filter(note => note.id != id);
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function archiveNote(id: string) {
-  api.archiveNote(id).then((id: string) => {
-    notes.value = notes.value.filter(note => note.id != id);
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function unarchiveNote(id: string) {
-  api.unarchiveNote(id).then((id: string) => {
-    notes.value = notes.value.filter(note => note.id != id);
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
-function saveReminder(reminder: Reminder) {
-  if (reminder.id) {
-    api.editReminder(reminder.note_id, reminder.id, reminder).then((r: Reminder) => {
-      let note = notes.value.find((el) => el.id == reminder.note_id);
-      note.reminder = r;
-    }).catch((e: any) => {
-      console.error(e);
-    });
-  } else {
-    api.createReminder(reminder.note_id, reminder).then((r: Reminder) => {
-      let note = notes.value.find((el) => el.id == reminder.note_id);
-      note.reminder = r;
-    }).catch((e: any) => {
-      console.error(e);
-    });
-  }
-}
-
-function deleteReminder(reminder: Reminder) {
-  api.deleteReminder(reminder.note_id, reminder.id).then(() => {
-    let note = notes.value.find((el) => el.id == reminder.note_id);
-    note.reminder = undefined;
-  }).catch((e: any) => {
-    console.error(e);
-  });
-}
-
 </script>
 
 <template>
-  <AddNoteForm v-if="!archivedView" @add-note="addNote" />
+  <AddNoteForm v-if="!archivedView" @add-note="store.addNote" />
   <v-container fluid>
     <v-row no-gutters>
       <v-spacer></v-spacer>
@@ -167,12 +66,6 @@ function deleteReminder(reminder: Reminder) {
             :key="note.id"
             :width="cardWidth"
             :edit-mode="false"
-            @copy-note="copyNote"
-            @archive-note="archiveNote"
-            @unarchive-note="unarchiveNote"
-            @delete-note="deleteNote"
-            @save-reminder="saveReminder"
-            @delete-reminder="deleteReminder"
           />
         </div>
       </v-col>
@@ -186,13 +79,7 @@ function deleteReminder(reminder: Reminder) {
         :note="selectedNote"
         :width=700
         :edit-mode="true"
-        @copy-note="copyNote"
-        @archive-note="archiveNote"
-        @unarchive-note="unarchiveNote"
-        @delete-note="deleteNote"
-        @edit-note="editNote"
-        @save-reminder="saveReminder"
-        @delete-reminder="deleteReminder"
+        @close-dialog="dialog = false"
       />
     </v-dialog>
   </v-container>

@@ -10,29 +10,45 @@ export default class NotesApi {
     this.userID = userID;
   }
 
+  getNotes(): Promise<Array<Note>> {
+    return axios.get([this.url, "api/v1", this.userID, "notes"].join("/"))
+      .then(r => r.data)
+      .catch((e: any) => {
+        console.error(e);
+      });
+  }
+
   getInProgressNotes(): Promise<Array<Note>> {
-    return axios.get([this.url, "api/v1", this.userID, "notes/"].join("/"))
-      .then(r => r.data);
+    return axios.get([this.url, "api/v1", this.userID, "notes", "in-progress"].join("/"))
+      .then(r => r.data)
+      .catch((e: any) => {
+        console.error(e);
+      });
   }
 
   getCompletedNotes(): Promise<Array<Note>> {
     return axios.get([this.url, "api/v1", this.userID, "notes", "completed"].join("/"))
-      .then(r => r.data);
+      .then(r => r.data)
+      .catch((e: any) => {
+        console.error(e);
+      });
   }
 
   addNote(note: Note): Promise<Note> {
-    const title = note.title;
-    const description = note.description;
-    return axios.post([this.url, "api/v1", this.userID, "notes/"].join("/"), note)
+    return axios.post([this.url, "api/v1", this.userID, "notes"].join("/"), note)
       .then(r => ({
         id: r.data.note_id,
-        title: title,
-        description: description,
+        title: note.title,
+        description: note.description,
+        completed: note.completed,
         user_id: this.userID,
         reminder: null,
         created_at: r.data.created_at,
         updated_at: r.data.updated_at
-      }));
+      }))
+      .catch((e: any) => {
+        console.error(e);
+      });
   }
 
   copyNote(note: Note): Promise<Note> {
@@ -42,11 +58,15 @@ export default class NotesApi {
           id: r.data.note_id,
           title: note.title,
           description: note.description,
+          completed: note.completed,
           user_id: this.userID,
           reminder: null,
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
         };
+      })
+      .catch((e: any) => {
+        console.error(e);
       });
   }
 
@@ -57,16 +77,23 @@ export default class NotesApi {
           id: r.data.note_id,
           title: note.title,
           description: note.description,
+          completed: note.completed,
           user_id: this.userID,
-          reminder: null,
+          reminder: note.reminder,
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
         };
+      })
+      .catch((e: any) => {
+        console.error(e);
       });
   }
 
   deleteNote(id: string): Promise<string> {
     return axios.delete([this.url, "api/v1", this.userID, "notes", id].join("/"))
+      .catch((e: any) => {
+        console.error(e);
+      })
       .then(() => {
         return id;
       });
@@ -74,6 +101,9 @@ export default class NotesApi {
 
   archiveNote(id: string): Promise<string> {
     return axios.put([this.url, "api/v1", this.userID, "notes", id, "complete"].join("/"))
+      .catch((e: any) => {
+        console.error(e);
+      })
       .then(() => {
         return id;
       });
@@ -81,6 +111,9 @@ export default class NotesApi {
 
   unarchiveNote(id: string): Promise<string> {
     return axios.put([this.url, "api/v1", this.userID, "notes", id, "in-progress"].join("/"))
+      .catch((e: any) => {
+        console.error(e);
+      })
       .then(() => {
         return id;
       });
@@ -103,6 +136,9 @@ export default class NotesApi {
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
         };
+      })
+      .catch((e: any) => {
+        console.error(e);
       });
   }
 
@@ -123,6 +159,9 @@ export default class NotesApi {
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
         };
+      })
+      .catch((e: any) => {
+        console.error(e);
       });
   }
 
@@ -130,6 +169,9 @@ export default class NotesApi {
     return axios.delete([this.url, "api/v1", this.userID, "notes", noteID, "reminders", reminderID].join("/"))
       .then(() => {
         return reminderID;
+      })
+      .catch((e: any) => {
+        console.error(e);
       });
   }
 }
