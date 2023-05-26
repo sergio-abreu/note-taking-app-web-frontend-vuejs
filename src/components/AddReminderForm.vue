@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { computed, PropType, ref, onRenderTriggered, watch } from "vue";
+import { ref, onRenderTriggered, watch } from "vue";
 import { Reminder } from "@/models/Notes";
 
-const emits = defineEmits(["menu-updated", "save-reminder"]);
+const emits = defineEmits<{
+  (e: "menu-updated", value: boolean): void
+  (e: "save-reminder", reminder: Reminder): void
+}>();
 
-const props = defineProps({
-  note_id: { type: String, required: true },
-  reminder: { type: Object as PropType<Reminder> }
-});
+const props = defineProps<{
+  note_id: string,
+  reminder: Reminder,
+}>();
 
-const menu = ref(false);
-const selectedDays = ref(!!props.reminder && !!props.reminder.week_days ? props.reminder.week_days.split(",") : Array<Number>());
-const reminder: Reminder = ref({});
-const ends = ref({type: "", ends_at: "", ends_after_n: 0})
+const menu = ref<boolean>(false);
+const selectedDays = ref<Array<number>>(!!props.reminder && !!props.reminder.week_days ? props.reminder.week_days.split(",") : Array<number>());
+const reminder = ref<Reminder>({});
+const ends = ref({ type: "", ends_at: "", ends_after_n: 0 });
 
 watch(ends.value, async (newValue) => {
   if (newValue.type == "never") {
@@ -20,7 +23,7 @@ watch(ends.value, async (newValue) => {
     reminder.value.ends_after_n = 0;
   } else if (newValue.type == "occurrences") {
     if (newValue.ends_after_n < 1) {
-      ends.value.ends_after_n = 1
+      ends.value.ends_after_n = 1;
     }
     reminder.value.ends_at = "";
     reminder.value.ends_after_n = parseInt(newValue.ends_after_n);
@@ -28,15 +31,15 @@ watch(ends.value, async (newValue) => {
     reminder.value.ends_at = newValue.ends_at;
     reminder.value.ends_after_n = 0;
   }
-})
+});
 
 watch(() => selectedDays.value, async (newValue) => {
   if (reminder.value.interval != "Weekly") {
     reminder.value.week_days = "";
   } else {
-    reminder.value.week_days = newValue.join(",")
+    reminder.value.week_days = newValue.join(",");
   }
-}, { deep: true })
+}, { deep: true });
 
 onRenderTriggered((e) => {
   if (e.newValue !== true) {
@@ -65,7 +68,7 @@ onRenderTriggered((e) => {
   selectedDays.value = !!props.reminder && !!reminder.value.week_days ? reminder.value.week_days.split(",") : [];
 });
 
-function addDay(day: Number) {
+function addDay(day: number) {
   if (existDay(day)) {
     return;
   }
@@ -73,12 +76,12 @@ function addDay(day: Number) {
   selectedDays.value.sort();
 }
 
-function removeDay(day: Number) {
-  selectedDays.value = selectedDays.value.filter((el:Number) => el != day);
+function removeDay(day: number) {
+  selectedDays.value = selectedDays.value.filter((el: Number) => el != day);
 }
 
-function existDay(day: Number): boolean {
-  return !!selectedDays.value.find((el:Number) => el == day);
+function existDay(day: number): boolean {
+  return !!selectedDays.value.find((el: Number) => el == day);
 }
 
 function save() {

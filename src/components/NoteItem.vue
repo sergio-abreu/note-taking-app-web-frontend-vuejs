@@ -1,33 +1,41 @@
 <script setup lang="ts">
-import { computed, PropType, ref } from "vue";
+import { computed, ref } from "vue";
 import AddReminderForm from "@/components/AddReminderForm.vue";
 import { Note, Reminder } from "@/models/Notes";
 
-const props = defineProps({
-  note: { type: Object as PropType<Note>, required: true },
-  editMode: { type: Boolean, required: true },
-  width: { type: [Number, String], required: true }
-});
+const props = defineProps<{
+  note: Note,
+  editMode: boolean,
+  width: number,
+}>();
 
-const emits = defineEmits(["delete-note", "copy-note", "archive-note", "unarchive-note", "edit-note", "save-reminder", "delete-reminder"]);
+const emits = defineEmits<{
+  (e: "delete-note", noteID: string): void
+  (e: "copy-note", note: Note): void
+  (e: "archive-note", noteID: string): void
+  (e: "unarchive-note", noteID: string): void
+  (e: "edit-note", note: Note): void
+  (e: "save-reminder", reminder: Reminder): void
+  (e: "delete-reminder", reminder: Reminder): void
+}>();
 
-const showActions = ref(false);
-const editedNote = ref({ ...props.note });
-const persistent = ref(false);
+const showActions = ref<boolean>(false);
+const editedNote = ref<Note>({ ...props.note });
+const persistent = ref<boolean>(false);
 
 const reminderChip = computed({
-  get() {
+  get(): boolean {
     return !!props.note.reminder;
   },
   set() {
   }
 });
 
-const nextCron = computed(() => {
+const nextCron = computed<string>(() => {
   if (!props.note.reminder) {
     return "";
   }
-  const r:Reminder = props.note.reminder;
+  const r: Reminder = props.note.reminder;
   return [r.start_date, " ", r.interval].join("");
 });
 

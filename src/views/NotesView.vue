@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed, onMounted, onUpdated, ref } from "vue";
+import { computed, onMounted, onUpdated, Ref, ref } from "vue";
 import { useDisplay, useLayout } from "vuetify";
 import { Note, Reminder } from "@/models/Notes";
 import NoteItem from "./../components/NoteItem.vue";
 import AddNoteForm from "./../components/AddNoteForm.vue";
 import NotesApi from "@/models/NotesAPI";
 
-const props = defineProps({
-  archivedView: { type: Boolean, required: true },
-  listView: { type: Boolean, required: true }
-});
+const props = defineProps<{
+  archivedView: boolean,
+  listView: boolean,
+}>();
 
 const { mainRect } = useLayout();
-const notes = ref(Array<Note>());
+const notes: Ref<Array<Note>> = ref([]);
 const dialog = ref(false);
-const selectedNote: Note = ref({});
-const api = new NotesApi("http://localhost:8080", "bdd0ff53-f42d-4168-a669-478c0be09207");
+const selectedNote: Ref<Note> = ref({});
+const api: NotesApi = new NotesApi("http://localhost:8080", "bdd0ff53-f42d-4168-a669-478c0be09207");
 
 onMounted(() => {
   getNotes();
@@ -25,7 +25,7 @@ onUpdated(() => {
   getNotes();
 });
 
-const itemsPerRow = computed(() => {
+const itemsPerRow = computed<number>(() => {
   if (props.listView) {
     return 1;
   }
@@ -36,14 +36,14 @@ const itemsPerRow = computed(() => {
   return Math.floor(width / 250);
 });
 
-const cardWidth = computed(() => {
+const cardWidth = computed<number>(() => {
   if (props.listView) {
     return 600;
   }
   return 238;
 });
 
-function getNotesForColum(column: number) {
+function getNotesForColum(column: number): Array<Note> {
   return notes.value.filter((note: Note, index: number) => {
     return index % itemsPerRow.value == column - 1;
   });

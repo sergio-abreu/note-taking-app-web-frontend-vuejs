@@ -2,9 +2,12 @@
 import { ref } from "vue";
 import { Note } from "@/models/Notes";
 
-const showForm = ref(false);
-const emits = defineEmits(["add-note"]);
-const note: Note = ref({ title: "", description: "" });
+const showForm = ref<boolean>(false);
+// const emits = defineEmits(["add-note"]);
+const emits = defineEmits<{
+  (e: "add-note", note: Note): void
+}>();
+const note = ref<Note>({ title: "", description: "" });
 
 function clearNote(note: Note) {
   note.title = "";

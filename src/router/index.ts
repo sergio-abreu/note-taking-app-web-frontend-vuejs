@@ -14,12 +14,6 @@ const router = createRouter({
       props: {archivedView: false}
     },
     {
-      path: '/reminders',
-      name: 'reminders',
-      component: () => import('../views/NotesView.vue'),
-      props: {archivedView: false}
-    },
-    {
       path: '/archive',
       name: 'archive',
       component: () => import('../views/NotesView.vue'),
