@@ -58,7 +58,7 @@ export default class NotesApi {
           id: r.data.note_id,
           title: note.title,
           description: note.description,
-          completed: note.completed,
+          completed: false,
           user_id: this.userID,
           reminder: null,
           created_at: r.data.created_at,
@@ -74,12 +74,8 @@ export default class NotesApi {
     return axios.patch([this.url, "api/v1", this.userID, "notes", note.id].join("/"), note)
       .then(r => {
         return {
-          id: r.data.note_id,
           title: note.title,
           description: note.description,
-          completed: note.completed,
-          user_id: this.userID,
-          reminder: note.reminder,
           created_at: r.data.created_at,
           updated_at: r.data.updated_at
         };

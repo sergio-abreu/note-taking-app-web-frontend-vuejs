@@ -35,8 +35,8 @@ export const useNotesStore = defineStore("notes", () => {
   }
 
   function editNote(note: Note) {
-    api.editNote(note).then((note: Note) => {
-      notes.value = notes.value.map(el => el.id == note.id ? note : el);
+    api.editNote(note).then((n: Note) => {
+      notes.value = notes.value.map(el => el.id == note.id ? { ...el, ...n } : el);
     });
   }
 
