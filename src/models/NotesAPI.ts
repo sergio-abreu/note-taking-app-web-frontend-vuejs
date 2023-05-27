@@ -35,11 +35,13 @@ export default class NotesApi {
   }
 
   addNote(note: Note): Promise<Note> {
+    const title = note.title;
+    const description = note.description;
     return axios.post([this.url, "api/v1", this.userID, "notes"].join("/"), note)
       .then(r => ({
         id: r.data.note_id,
-        title: note.title,
-        description: note.description,
+        title: title,
+        description: description,
         completed: note.completed,
         user_id: this.userID,
         reminder: null,

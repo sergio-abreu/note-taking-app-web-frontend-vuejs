@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { computed, onBeforeMount, Ref, ref } from "vue";
+import { computed, ref } from "vue";
+import type { Ref } from "vue";
 import { useDisplay, useLayout } from "vuetify";
-import { Note } from "@/models/Notes";
+import type { Note } from "@/models/Notes";
 import NoteItem from "./../components/NoteItem.vue";
 import AddNoteForm from "./../components/AddNoteForm.vue";
 import { useNotesStore } from "@/stores/notes";
+import { useListView } from "@/stores/listView";
 
 const props = defineProps<{
   archivedView: boolean,
-  listView: boolean,
 }>();
 
 const store = useNotesStore();
+const { listView } = useListView();
 const { mainRect } = useLayout();
 const dialog = ref(false);
 const selectedNote: Ref<Note> = ref({});
@@ -19,12 +21,8 @@ const notes = computed<Array<Note>>(() => {
   return props.archivedView ? store.completed : store.inProgress;
 });
 
-onBeforeMount(() => {
-  store.getNotes();
-});
-
 const itemsPerRow = computed<number>(() => {
-  if (props.listView) {
+  if (listView.value) {
     return 1;
   }
   const width = useDisplay().width.value - mainRect.value.left - mainRect.value.right - 100;
@@ -35,7 +33,7 @@ const itemsPerRow = computed<number>(() => {
 });
 
 const cardWidth = computed<number>(() => {
-  if (props.listView) {
+  if (listView.value) {
     return 600;
   }
   return 238;

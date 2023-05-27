@@ -92,7 +92,6 @@ function closeFormAndAddNote() {
       </v-card-text>
 
       <v-card-actions class="justify-end ma-0 pa-0">
-        <v-btn size="small" icon="mdi-bell-plus-outline"></v-btn>
         <v-spacer></v-spacer>
         <v-btn size="small" icon="mdi-plus"
                @click="closeFormAndAddNote"></v-btn>

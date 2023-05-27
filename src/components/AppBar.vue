@@ -1,22 +1,23 @@
 <script setup lang="ts">
+import { useDark, useToggle } from "@vueuse/core";
+import { useListView } from "@/stores/listView";
+import { useDrawer } from "@/stores/drawer";
+import { useTitle } from "@/stores/title";
+import { useNotesStore } from "@/stores/notes";
 
-defineProps<{
-  darkTheme: boolean,
-  listView: boolean,
-  title: string,
-}>();
-const emits = defineEmits<{
-  (e: "drawer"): void
-  (e: "theme-changer"): void
-  (e: "list-view-changer"): void
-}>();
+const isDark = useDark();
+const toggleDark = useToggle(isDark);
+const { listView, toggleListView } = useListView();
+const { toggleDrawer } = useDrawer();
+const title = useTitle();
+const { getNotes } = useNotesStore();
 
 </script>
 
 <template>
   <v-app-bar elevation="0" border>
     <template v-slot:prepend>
-      <v-app-bar-nav-icon @click="emits('drawer')"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleDrawer()"></v-app-bar-nav-icon>
     </template>
 
     <template v-slot:title>
@@ -24,13 +25,19 @@ const emits = defineEmits<{
     </template>
 
     <template v-slot:append>
-      <v-btn icon @click="emits('list-view-changer')">
+      <v-btn icon @click="getNotes()">
+        <v-icon>mdi-sync</v-icon>
+        <v-tooltip offset="-5" activator="parent" location="bottom">Sync</v-tooltip>
+      </v-btn>
+      <v-btn icon @click="toggleListView()">
         <v-icon v-if="listView">mdi-view-grid-outline</v-icon>
         <v-icon v-else>mdi-view-agenda-outline</v-icon>
+        <v-tooltip offset="-5" activator="parent" location="bottom">{{ listView ? 'Grid' : 'List' }} view</v-tooltip>
       </v-btn>
-      <v-btn icon @click="emits('theme-changer')">
-        <v-icon v-if="darkTheme">mdi-weather-sunny</v-icon>
+      <v-btn icon @click="toggleDark()">
+        <v-icon v-if="isDark">mdi-weather-sunny</v-icon>
         <v-icon v-else>mdi-weather-night</v-icon>
+        <v-tooltip offset="-5" activator="parent" location="bottom">{{ isDark ? 'Light' : 'Dark' }}</v-tooltip>
       </v-btn>
       <v-btn icon="mdi-dots-vertical"></v-btn>
     </template>

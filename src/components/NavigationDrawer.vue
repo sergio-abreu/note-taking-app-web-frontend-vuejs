@@ -1,20 +1,24 @@
 <script setup lang="ts">
-interface Navigation {
-  title: string;
-  icon: string;
-  to: string;
-}
+import { useDrawer } from "@/stores/drawer";
 
-const props = defineProps<{
-  drawer: boolean,
-  items: Array<Navigation>,
-}>();
+const items = [{
+  title: "Notes",
+  icon: "mdi-lightbulb-outline",
+  to: "/notes"
+}, {
+  title: "Archive",
+  icon: "mdi-archive-arrow-down-outline",
+  to: "/archive"
+}];
+
+const { drawer } = useDrawer();
+
 </script>
 
 <template>
   <v-navigation-drawer permanent expand-on-hover :rail="drawer">
     <v-list density="compact" nav>
-      <v-list-item v-for="item in props.items"
+      <v-list-item v-for="item in items"
                    :key="item.title"
                    :prepend-icon="item.icon"
                    :title="item.title"

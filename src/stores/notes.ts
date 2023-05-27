@@ -1,20 +1,31 @@
-import { computed, ref } from "vue";
-import type { Ref } from "vue";
+import { computed } from "vue";
 import { defineStore } from "pinia";
 import type { Note, Reminder } from "@/models/Notes";
 import NotesApi from "@/models/NotesAPI";
+import type { RemovableRef } from "@vueuse/core";
+import { createGlobalState, useStorage } from "@vueuse/core";
 
 export const useNotesStore = defineStore("notes", () => {
   const api: NotesApi = new NotesApi("http://localhost:8080", "bdd0ff53-f42d-4168-a669-478c0be09207");
-  const notes: Ref<Array<Note>> = ref([]);
+  const expire = createGlobalState(() => useStorage("vueuse-notes-expire", (new Date()).setDate((new Date()).getDate() + 1)))();
+  const notes: RemovableRef<Note[]> = createGlobalState(() => {
+    const list: RemovableRef<Note[]> = useStorage("vueuse-notes", []);
+    if (list.value.length == 0 || (!expire.value || expire.value < (new Date()).getTime())) {
+      expire.value = (new Date()).setDate((new Date()).getDate() + 1);
+      api.getNotes().then((n: Array<Note>) => {
+        list.value = n;
+      });
+    }
+    return list;
+  })();
 
   const completed = computed<Array<Note>>(() => {
-    return notes.value.filter(el => el.completed)
-  })
+    return notes.value.filter(el => el.completed);
+  });
 
   const inProgress = computed<Array<Note>>(() => {
-    return notes.value.filter(el => !el.completed)
-  })
+    return notes.value.filter(el => !el.completed);
+  });
 
   function getNotes() {
     api.getNotes().then((n: Array<Note>) => {
